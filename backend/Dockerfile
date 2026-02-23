@@ -3,6 +3,9 @@ FROM node:20-alpine AS dev
 
 WORKDIR /app
 
+# Install OpenSSL (required by Prisma schema-engine on Alpine)
+RUN apk add --no-cache openssl
+
 # Install dependencies
 COPY package*.json ./
 RUN npm install
@@ -23,6 +26,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+RUN apk add --no-cache openssl
+
 COPY package*.json ./
 RUN npm ci
 
@@ -36,6 +41,8 @@ RUN npm run build
 FROM node:20-alpine AS production
 
 WORKDIR /app
+
+RUN apk add --no-cache openssl
 
 COPY package*.json ./
 RUN npm ci --omit=dev
