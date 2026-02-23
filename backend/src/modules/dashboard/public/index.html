@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prism</title>
+  <meta name="description" content="Your personal dashboard" />
+  <link rel="stylesheet" href="{{ASSETS}}/style.css" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+
+<body>
+
+  <!-- Background -->
+  <div class="bg-layer" id="bg-a"></div>
+  <div class="bg-veil"></div>
+  <input type="file" id="bg-upload-input" accept="image/*" style="display:none" />
+  <button class="bg-upload-trigger" id="bg-upload-trigger" title="Upload background image">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    Background
+  </button>
+
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div>
+        <div class="greeting" id="greeting">Welcome</div>
+        <div class="date-line" id="date-line"></div>
+      </div>
+      <div class="clock" id="clock">00:00</div>
+    </header>
+
+    <!-- MAIN GRID -->
+    <main class="grid-main">
+
+      <!-- Quick Links -->
+      <section class="card" aria-label="Quick Links">
+        <div class="panel-header">
+          <span class="section-title">Quick Links</span>
+          <div class="panel-header-actions">
+            <button class="btn btn-ghost" onclick="toggleAddLink()" title="Add link">+ Add</button>
+          </div>
+        </div>
+        <div id="links-list" class="links-list"></div>
+        <div id="add-link-form" class="add-form">
+          <div class="form-row">
+            <input id="nl-label" class="input" type="text" placeholder="Label" />
+            <input id="nl-icon" class="input" type="text" placeholder="🔗" style="max-width:50px;text-align:center" />
+          </div>
+          <input id="nl-url" class="input" type="url" placeholder="https://…"
+            onkeydown="if(event.key==='Enter')addLink()" />
+          <div class="form-row">
+            <button class="btn btn-warm" style="flex:1" onclick="addLink()">Add</button>
+            <button class="btn btn-ghost" onclick="toggleAddLink()">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Google Calendar -->
+      <section class="card calendar-panel" aria-label="Calendar">
+        <div class="panel-header">
+          <span class="section-title">Calendar</span>
+          <div class="panel-header-actions">
+            <button class="btn btn-ghost" onclick="changeCalendar()" id="cal-change-btn"
+              style="display:none">Change</button>
+          </div>
+        </div>
+        <div id="calendar-area"></div>
+      </section>
+
+      <!-- To-Do -->
+      <section class="card" aria-label="To-Do">
+        <div class="panel-header">
+          <span class="section-title">To-Do</span>
+          <div class="panel-header-actions">
+            <span class="todo-count" id="todo-count">—</span>
+            <button class="btn btn-ghost" onclick="toggleAddTodo()" title="Add task">+ Add</button>
+          </div>
+        </div>
+        <div id="todo-list" class="todo-list"></div>
+        <div id="add-todo-form" class="add-form">
+          <div class="form-row">
+            <input id="todo-input" class="input" type="text" placeholder="Add a task…"
+              onkeydown="if(event.key==='Enter')addTodo()" />
+            <button class="btn btn-warm" onclick="addTodo()">Add</button>
+            <button class="btn btn-ghost" onclick="toggleAddTodo()">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RSS News -->
+      <section class="card rss-panel" aria-label="News">
+        <div class="panel-header">
+          <span class="section-title">News</span>
+          <div class="panel-header-actions">
+            <button class="btn btn-ghost" onclick="refreshFeed()">↺</button>
+            <button class="btn btn-ghost" onclick="removeFeed()">Remove feed</button>
+            <button class="btn btn-warm" onclick="toggleAddRss()">+ Feed</button>
+          </div>
+        </div>
+        <div id="rss-tabs" class="rss-tabs"></div>
+        <div id="rss-add-form" class="rss-add-form">
+          <div class="form-row">
+            <input id="rss-url" class="input" type="url" placeholder="https://feeds.example.com/rss.xml"
+              onkeydown="if(event.key==='Enter')addRss()" />
+            <button class="btn btn-warm" onclick="addRss()">Add</button>
+            <button class="btn btn-ghost" onclick="toggleAddRss()">✕</button>
+          </div>
+          <div class="rss-suggestions">
+            Try:
+            <span onclick="document.getElementById('rss-url').value='https://feeds.bbci.co.uk/news/world/rss.xml'">BBC
+              World</span>
+            <span onclick="document.getElementById('rss-url').value='https://hnrss.org/frontpage'">Hacker News</span>
+            <span onclick="document.getElementById('rss-url').value='https://www.theverge.com/rss/index.xml'">The
+              Verge</span>
+          </div>
+        </div>
+        <div id="rss-articles" class="rss-grid"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Edit Link Modal -->
+  <div class="overlay" id="link-modal" onclick="if(event.target===this)closeLinkModal()">
+    <div class="modal" role="dialog">
+      <div class="modal-title">Edit Link</div>
+      <div class="form-field">
+        <label class="form-label">Label</label>
+        <input id="ml-label" class="input" type="text" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">URL</label>
+        <input id="ml-url" class="input" type="url" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Icon</label>
+        <input id="ml-icon" class="input" type="text" style="max-width:70px;text-align:center" />
+      </div>
+      <div class="form-field">
+        <label class="form-label">Color</label>
+        <div class="swatches" id="modal-swatches"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeLinkModal()">Cancel</button>
+        <button class="btn btn-warm" onclick="saveLinkModal()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="{{ASSETS}}/app.js"></script>
+</body>
+
+</html>
